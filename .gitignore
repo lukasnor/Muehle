@@ -1,0 +1,4 @@
+#Hier schreibt man rein, was nicht ins Repository gehört, wie zum Beispiel Metadaten eurer Entwicklungsumgebung
+#Mehr dazu auf https://git-scm.com/docs/gitignore
+#Bei mir ist das dieser ".idea"-Ordner zum Beispiel
+.idea/
