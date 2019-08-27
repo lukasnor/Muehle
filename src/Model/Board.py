@@ -1,5 +1,5 @@
-from copy import deepcopy
 from Model import Move
+from PyQt5 import QtCore
 
 
 class Board():
@@ -50,7 +50,8 @@ class Board():
             if not self.is_position_in_muehle_of_color(move.to_pos, move.color):
                 # Man darf nur Steine entfernen, wenn man eine Muehle gemacht hat
                 return False
-            if move.color == self.nodes[move.remove_pos]: #TODO spieler muss ja stein entfernen, wie könnte man das erzwingen?
+            if move.color == self.nodes[
+                move.remove_pos]:  # TODO spieler muss ja stein entfernen, wie könnte man das erzwingen?
                 # Man darf nicht eigene Steine entfernen
                 return False
             if self.is_position_in_muehle_of_color(move.remove_pos, (move.color + 1) % 2):
@@ -121,26 +122,26 @@ class Board():
         self.update_phases()
 
     # Nur relevant fuer die Ziehen Phase und auch so geschrieben!
-    def phase_two_get_legal_moves(self, color):
+    def phase_one_get_legal_moves(self, color):
         positions = [pos for pos in range(24) if self.nodes[pos] == color]
         legal_moves = set([])
         for position in positions:
             adj_positions = self.get_adjacent_positions(position)
             for adj_position in adj_positions:
                 if self.nodes[adj_position] == -1:
-                    move = Move.Move(color,position, adj_position)
+                    move = Move.Move(color, position, adj_position)
                     legal_moves.add(move)
         return legal_moves
 
-    #soll bestimmen, ob ein spieler gewonnen hat
+    # Soll bestimmen, ob ein spieler gewonnen hat
     def check_win(self):
         None
 
-    #Soll bestimmen, ob ein Remis vorliegt
+    # Soll bestimmen, ob ein Remis vorliegt
     def check_remis(self):
         None
 
-    #Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
+    # Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
     # return "w" falls weiß gewinnt, return "l" falls schwarz gewinnt, return "r" falls remis, return "" sonst
     def check_game_end(self):
         None
