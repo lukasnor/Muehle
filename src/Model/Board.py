@@ -16,8 +16,7 @@ class Board():
         self.last_muehle_counter = 0
         # In node_states sollen alle erreichten Brettstellungen gespeichert werden.
         # Nach einer Mühle können alle vorherigen Stellungen nicht mehr erreicht werden, oder? TODO
-        self.node_states = []
-        self.node_states.append(self.nodes)
+        self.node_states = [self.nodes]
 
     # Wieviele Steine einer Farbe gibt es?
     def get_num_pieces(self, color):
