@@ -176,7 +176,7 @@ class Board():
     #soll bestimmen, ob ein spieler gewonnen hat
     def check_win(self):    
         # Spieler kann sich nicht mehr bewegen 
-        if len(self.phase_two_get_legal_moves(0)) == 0 or len(self.phase_two_get_legal_moves(1)) == 0:
+        if len(self.phase_one_get_legal_moves(0)) == 0 or len(self.phase_one_get_legal_moves(1)) == 0:
             return True
         # mindestens ein Spieler muss in der letzten Phase sein
         if not self.phases[0] == 2 or self.phases[1] == 2:
@@ -209,9 +209,9 @@ class Board():
                 return "l"
             if self.get_num_pieces(1) < 3:
                 return "w"
-            if len(self.phase_two_get_legal_moves(0)) == 0:
+            if len(self.phase_one_get_legal_moves(0)) == 0:
                 return "l"
-            if len(self.phase_two_get_legal_moves(1)) == 0:
+            if len(self.phase_one_get_legal_moves(1)) == 0:
                 return "w"
         else:
             return ""
