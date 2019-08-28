@@ -16,7 +16,9 @@ class Board():
         self.last_muehle_counter = 0
         # In node_states sollen alle erreichten Brettstellungen gespeichert werden.
         # Nach einer Mühle können alle vorherigen Stellungen nicht mehr erreicht werden, oder? TODO
-        self.node_states = [].append(self.nodes)
+        self.node_states = [self.nodes]
+
+        self.next_move=Move.Move(0)
 
     # Wieviele Steine einer Farbe gibt es?
     def get_num_pieces(self, color):
@@ -106,6 +108,39 @@ class Board():
                 adj_positions.add(i)
         return adj_positions
 
+    def receive_pos(self, pos):
+        changed = -1 # this variable shows which attribute of self.next_move is changed,
+                     # -1 means nothing, 0 means from_pos, 1 means to_pos, 2 means remove_pos
+        if self.phases[self.next_move.color]==0:
+            if self.next_move.to_pos == -1:
+                self.next_move.to_pos = pos
+                changed = 1
+        else:
+            if self.next_move.from_pos == -1:
+                self.next_move.from_pos = pos
+                changed = 0
+            elif self.next_move.to_pos == -1:
+                self.next_move.to_pos = pos
+                changed = 1
+        if changed == -1:
+            self.next_move.remove_pos = pos
+            changed = 2
+        if self.is_move_legal(self.next_move):
+            if self.does_player_need_to_remove(self.next_move) and self.next_move.remove_pos == -1:
+                pass
+            else:
+                self.make_move(self.next_move)
+                self.next_move = Move.Move((self.next_move.color +1))
+        else:
+            if changed == 0:
+                self.next_move.from_pos = -1
+            if changed == 1:
+                self.next_move.to_pos = -1
+            if changed == 2:
+                self.next_move.remove_pos = -1
+
+
+
     def make_move(self, move):
         # wurde schon geprüft, ob der Move legal ist?
         new_nodes = [self.nodes[i] for i in range(24)]
@@ -133,26 +168,29 @@ class Board():
                     legal_moves.add(move)
         return legal_moves
 
+    def does_player_need_to_remove(self, move):
+        pass
+
     # Soll bestimmen, ob ein spieler gewonnen hat
     def check_win(self):
-        None
+        pass
 
     # Soll bestimmen, ob ein Remis vorliegt
     def check_remis(self):
-        None
+        pass
 
     # Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
     # return "w" falls weiß gewinnt, return "l" falls schwarz gewinnt, return "r" falls remis, return "" sonst
     def check_game_end(self):
-        None
+        pass
 
     # Interface Methode zum Handling von Click Events aus dem Spielplan
     def receive_position(self, pos):
-        None
+        pass
 
     # Mache letzten Zug rückgängig
     def undo(self, steps=1):
-        None
+        pass
 
     # Mache Spiel rückgängig
     def reset(self):

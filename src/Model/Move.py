@@ -6,7 +6,7 @@ class Move:
     #Werte von -1 bis 23 sind Positionen auf dem Brett, wobei, -1 ein Platzhalterwert sein soll
     #Z.B. wenn ein Move nicht zu einer Muehle geführt hat, soll remove = -1 sein
     def __init__(self, color, from_pos = -1, to_pos = -1, remove_pos = -1):
-        self.color = color
+        self.color = color % 2
         self.from_pos = from_pos
         self.to_pos = to_pos
         self.remove_pos = remove_pos

@@ -11,7 +11,6 @@ class Controller(WindowBaseClass, Ui_MainWindow):
         self.setupUi(self)
         self.resize(1100,800)
         self.board = Model.Board.Board()
-        self.next_move = Model.Move.Move(0)
 
     # Slots for GUI
 
