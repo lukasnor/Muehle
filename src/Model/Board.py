@@ -139,7 +139,7 @@ class Board():
         if len(self.phase_two_get_legal_moves(0)) == 0 or len(self.phase_two_get_legal_moves(1)) == 0:
             return True
         # mindestens ein Spieler muss in der letzten Phase sein
-        if not self.phases[0] == 2 or self.phases[1] == 2
+        if not self.phases[0] == 2 or self.phases[1] == 2:
             return False
         # Weniger als 3 Steine
         if self.get_num_pieces(0) < 3:
