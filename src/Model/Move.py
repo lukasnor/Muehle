@@ -19,4 +19,6 @@ class Move:
     def set_remove(self, remove_pos):
         self.remove_pos = remove_pos
 
-
+    def __str__(self):
+        string = "Color: " + self.color + ", From: " + self.from_pos + ", To: " + self.to_pos + ", Remove: " + self.remove_pos
+        return string

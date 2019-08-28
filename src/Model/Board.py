@@ -109,28 +109,31 @@ class Board():
         return adj_positions
 
     def receive_pos(self, pos):
-        changed = -1 # this variable shows which attribute of self.next_move is changed,
-                     # -1 means nothing, 0 means from_pos, 1 means to_pos, 2 means remove_pos
-        if self.phases[self.next_move.color]==0:
+        changed = -1  # this variable shows which attribute of self.next_move is changed,
+        # -1 means nothing, 0 means from_pos, 1 means to_pos, 2 means remove_pos
+        if self.phases[self.next_move.color] == 0:
             if self.next_move.to_pos == -1:
                 self.next_move.to_pos = pos
                 changed = 1
+            elif self.next_move.remove_pos == -1:
+                self.next_move.remove_pos = pos
+                changed = 2
         else:
             if self.next_move.from_pos == -1:
                 self.next_move.from_pos = pos
                 changed = 0
             elif self.next_move.to_pos == -1:
                 self.next_move.to_pos = pos
-                changed = 1
-        if changed == -1:
-            self.next_move.remove_pos = pos
-            changed = 2
+                changed =1
+            elif self.next_move.remove_pos == -1:
+                self.next_move.remove_pos = pos
+                changed = 2
         if self.is_move_legal(self.next_move):
-            if self.does_player_need_to_remove(self.next_move) and self.next_move.remove_pos == -1:
-                pass
-            else:
+            if self.next_move.to_pos != -1 and \
+                (not self.is_position_in_muehle_of_color(self.next_move.to_pos, self.next_move.color) or
+                 self.next_move != -1):
                 self.make_move(self.next_move)
-                self.next_move = Move.Move((self.next_move.color +1))
+                self.next_move = Move.Move(self.next_move.color + 1)
         else:
             if changed == 0:
                 self.next_move.from_pos = -1
@@ -138,8 +141,8 @@ class Board():
                 self.next_move.to_pos = -1
             if changed == 2:
                 self.next_move.remove_pos = -1
-
-
+            if changed == -1:
+                raise RuntimeError("Der Move war schon fertig gebaut: "+ str(self.next_move))
 
     def make_move(self, move):
         # wurde schon geprüft, ob der Move legal ist?
@@ -168,13 +171,8 @@ class Board():
                     legal_moves.add(move)
         return legal_moves
 
-    def does_player_need_to_remove(self, move):
-        pass
-
-        pass
-
-    #soll bestimmen, ob ein spieler gewonnen hat
-    def check_win(self):    
+    # soll bestimmen, ob ein spieler gewonnen hat
+    def check_win(self):
         # Spieler kann sich nicht mehr bewegen 
         if len(self.phase_one_get_legal_moves(0)) == 0 or len(self.phase_one_get_legal_moves(1)) == 0:
             return True
@@ -186,9 +184,8 @@ class Board():
             return True
         if self.get_num_pieces(1) < 3:
             return True
-            
 
-    #Soll bestimmen, ob ein Remis vorliegt
+    # Soll bestimmen, ob ein Remis vorliegt
     def check_remis(self):
         # 50 Züge ohne Mühle
         if self.last_muehle_counter == 50:
@@ -198,13 +195,13 @@ class Board():
             return True
         return False
 
-    #Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
+    # Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
     # return "w" falls weiß gewinnt, return "l" falls schwarz gewinnt, return "r" falls remis, return "" sonst
     def check_game_end(self):
         if self.check_remis == True:
             return "r"
         if self.check_win == True:
-        # welcher Spieler hat gewonnen?
+            # welcher Spieler hat gewonnen?
             if self.get_num_pieces(0) < 3:
                 return "l"
             if self.get_num_pieces(1) < 3:
