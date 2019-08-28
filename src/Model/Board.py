@@ -1,13 +1,16 @@
 from Model import Move
+from Control import MainController
 from PyQt5 import QtCore
 
 
-class Board():
+class Board:
     def __init__(self):
         # Spielbrett mit 24 Positionen, -1 heißt Position leer,
         self.nodes = tuple([-1 for i in range(24)])
         # Wie ist weiß codiert
         self.white = 0
+
+        self.game_ended = False
 
         # Phases setzen 0, ziehen 1 und springen 2, self.phases[self.white] = white_phase!!!!
         self.phases = [0, 0]
@@ -15,13 +18,13 @@ class Board():
         # Relevant für die Remis
         self.last_muehle_counter = 0
         # In node_states sollen alle erreichten Brettstellungen gespeichert werden.
-        # Nach einer Mühle können alle vorherigen Stellungen nicht mehr erreicht werden, oder? TODO
+        # Nach einer Mühle können alle vorherigen Stellungen nicht mehr erreicht werden.
         self.node_states = [self.nodes]
-
+        self.game_end_info = ""
         self.next_move = Move.Move(0)
 
     # Wieviele Steine einer Farbe gibt es?
-    def get_num_pieces(self, color):
+    def get_num_of_pieces_on_board(self, color):
         return self.nodes.count(color)
 
     def update_phases(self):
@@ -29,14 +32,25 @@ class Board():
         black_phase = 0
         if len(self.node_states) >= 18:
             white_phase += 1
-            if self.get_num_pieces(self.white) == 3:
+            if self.get_num_of_pieces_on_board(self.white) == 3:
                 white_phase += 1
         if len((self.node_states)) >= 19:
             black_phase += 1
-            if self.get_num_pieces((self.white + 1) % 2) == 3:
+            if self.get_num_of_pieces_on_board((self.white + 1) % 2) == 3:
                 black_phase += 1
         self.phases[self.white] = white_phase
         self.phases[(self.white + 1) % 2] = black_phase
+
+    def get_num_of_pieces_left_to_place(self,color):
+        a,b = divmod(len(self.node_states), 2)
+        num_white, num_black = 9 - a, 9 - a
+        if b == 0: num_black += 1
+        if num_white<0: num_white = 0
+        if num_black<0: num_black = 0
+        if color == 0:
+            return num_white
+        if color == 1:
+            return num_black
 
     def is_move_legal(self, move):
         if self.nodes[move.to_pos] != -1:
@@ -52,8 +66,7 @@ class Board():
             if not self.is_position_in_muehle_of_color(move.to_pos, move.color):
                 # Man darf nur Steine entfernen, wenn man eine Muehle gemacht hat
                 return False
-            if move.color == self.nodes[
-                move.remove_pos]:  # TODO spieler muss ja stein entfernen, wie könnte man das erzwingen?
+            if move.color == self.nodes[move.remove_pos]:
                 # Man darf nicht eigene Steine entfernen
                 return False
             if self.is_position_in_muehle_of_color(move.remove_pos, (move.color + 1) % 2):
@@ -78,10 +91,10 @@ class Board():
         muehle_hor.discard(pos)
         is_muehle_hor, is_muehle_ver = True, True
         for i in muehle_hor:
-            if i != color:
+            if self.nodes[i] != color:
                 is_muehle_hor = False
         for i in muehle_ver:
-            if i != color:
+            if self.nodes[i] != color:
                 is_muehle_ver = False
         return is_muehle_hor or is_muehle_ver
 
@@ -109,6 +122,8 @@ class Board():
         return adj_positions
 
     def receive_pos(self, pos):
+        if self.game_ended:
+            return
         changed = -1  # this variable shows which attribute of self.next_move is changed,
         # -1 means nothing, 0 means from_pos, 1 means to_pos, 2 means remove_pos
         if self.phases[self.next_move.color] == 0:
@@ -131,7 +146,7 @@ class Board():
         if self.is_move_legal(self.next_move):
             if self.next_move.to_pos != -1 and \
                 (not self.is_position_in_muehle_of_color(self.next_move.to_pos, self.next_move.color) or
-                 self.next_move != -1):
+                 self.next_move.remove_pos != -1):
                 self.make_move(self.next_move)
                 self.next_move = Move.Move(self.next_move.color + 1)
         else:
@@ -158,6 +173,8 @@ class Board():
         self.nodes = tuple(new_nodes)
         self.node_states.append(self.nodes)
         self.update_phases()
+        self.update_game_end()
+
 
     # Nur relevant fuer die Ziehen Phase und auch so geschrieben!
     def phase_one_get_legal_moves(self, color):
@@ -180,9 +197,9 @@ class Board():
         if not self.phases[0] == 2 or self.phases[1] == 2:
             return False
         # Weniger als 3 Steine
-        if self.get_num_pieces(0) < 3:
+        if self.get_num_of_pieces_on_board(0) < 3:
             return True
-        if self.get_num_pieces(1) < 3:
+        if self.get_num_of_pieces_on_board(1) < 3:
             return True
 
     # Soll bestimmen, ob ein Remis vorliegt
@@ -197,25 +214,23 @@ class Board():
 
     # Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
     # return "w" falls weiß gewinnt, return "l" falls schwarz gewinnt, return "r" falls remis, return "" sonst
-    def check_game_end(self):
+    def update_game_end(self):
         if self.check_remis == True:
-            return "r"
+            self.game_ended = True
+            self.game_end_info = "Remi"
         if self.check_win == True:
+            self.game_ended = True
             # welcher Spieler hat gewonnen?
-            if self.get_num_pieces(0) < 3:
-                return "l"
-            if self.get_num_pieces(1) < 3:
-                return "w"
+            if self.get_num_of_pieces_on_board(0) < 3:
+                self.game_end_info =  "Schwarz gewinnt - Weiß hat nur noch zwei Steine übrig"
+            if self.get_num_of_pieces_on_board(1) < 3:
+                self.game_end_info =  "Weis gewinnt - Schwarz hat nur noch zwei Steine übrig"
             if len(self.phase_one_get_legal_moves(0)) == 0:
-                return "l"
+                self.game_end_info = "Schwarz gewinnt - Weiß kann nicht mehr ziehen"
             if len(self.phase_one_get_legal_moves(1)) == 0:
-                return "w"
+                self.game_end_info =  "Weiß gewinnt - Schwarz kann nicht mehr ziehen"
         else:
             return ""
-
-    # Interface Methode zum Handling von Click Events aus dem Spielplan
-    def receive_position(self, pos):
-        pass
 
     # Mache letzten Zug rückgängig
     def undo(self, steps=1):
@@ -225,6 +240,12 @@ class Board():
     def reset(self):
         self.nodes = tuple([-1 for i in range(24)])
         self.phases = [0, 0]
-
+        self.next_move = Move.Move(0)
+        self.game_ended = False
         self.last_muehle_counter = 0
-        self.node_states = []
+        self.node_states = [self.nodes]
+        #self.update_phases()
+        #self.nodes_changed.emit(self.nodes)
+        #self.next_move_changed.emit(tuple([0,-1,-1,-1]))
+        #self.turn_changed.emit(0)
+        #self.game_info_changed.emit("")
