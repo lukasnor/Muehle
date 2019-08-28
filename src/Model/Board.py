@@ -133,18 +133,48 @@ class Board():
                     legal_moves.add(move)
         return legal_moves
 
-    # Soll bestimmen, ob ein spieler gewonnen hat
-    def check_win(self):
-        None
+    #soll bestimmen, ob ein spieler gewonnen hat
+    def check_win(self):    
+        # Spieler kann sich nicht mehr bewegen 
+        if len(self.phase_two_get_legal_moves(0)) == 0 or len(self.phase_two_get_legal_moves(1)) == 0:
+            return True
+        # mindestens ein Spieler muss in der letzten Phase sein
+        if not self.phases[0] == 2 or self.phases[1] == 2
+            return False
+        # Weniger als 3 Steine
+        if self.get_num_pieces(0) < 3:
+            return True
+        if self.get_num_pieces(1) < 3:
+            return True
+            
+        
 
-    # Soll bestimmen, ob ein Remis vorliegt
+    #Soll bestimmen, ob ein Remis vorliegt
     def check_remis(self):
-        None
+        # 50 Züge ohne Mühle
+        if self.last_muehle_counter == 50:
+            return True
+        # 3 mal die gleiche Stellung
+        if node_states.count(self.nodes) == 3:
+            return True
 
-    # Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
+    #Soll die obrigen beiden Funktionen zusammenfassen und eine einheitliche schnittstelle bieten
     # return "w" falls weiß gewinnt, return "l" falls schwarz gewinnt, return "r" falls remis, return "" sonst
     def check_game_end(self):
-        None
+        if self.check_remis == True:
+            return "r"
+        if self.check_win == True:
+        # welcher Spieler hat gewonnen?
+            if self.get_num_pieces(0) < 3:
+                return "l"
+            if self.get_num_pieces(1) < 3:
+                return "w"
+            if len(self.phase_two_get_legal_moves(0)) == 0:
+                return "l"
+            if len(self.phase_two_get_legal_moves(1)) == 0:
+                return "w"
+        else:
+            return ""
 
     # Interface Methode zum Handling von Click Events aus dem Spielplan
     def receive_position(self, pos):
