@@ -43,9 +43,9 @@ class BoardWidget(QtWidgets.QWidget):
         )  # hier sollen die Spielstein rein bzw werden die Mausklicks gelesen
 
         # Spielsteine Bild
-        self.black = QtGui.QImage("black.png")
+        self.black = QtGui.QImage("Black.png")
         self.quelle_black = QtCore.QRect(0, 0, self.black.width(), self.black.height())
-        self.white = QtGui.QImage("white.png")
+        self.white = QtGui.QImage("White.png")
         self.quelle_white = QtCore.QRect(0, 0, self.white.width(), self.white.height())
         self.red = QtGui.QImage("Red-circle.svg")
         self.quelle_red = QtCore.QRect(0, 0, self.red.width(), self.red.height())
@@ -56,6 +56,9 @@ class BoardWidget(QtWidgets.QWidget):
                       -1, -1, -1, -1, -1, -1,
                       -1, -1, -1, -1, -1, -1)  # Zustad des Brettes
         self.marked_node = -1  # markierter Knoten falls vorhanden
+        self.next_node = -1
+        self.next_color = self.white
+        self.next_quelle = self.quelle_white
 
         self.update()
 
@@ -93,25 +96,40 @@ class BoardWidget(QtWidgets.QWidget):
 
         painter = QtGui.QPainter(self)
         painter.drawImage(self.ziel_board, self.board, self.quelle_board)
-        for i in range(24): # TODO
+        for i in range(24):  # TODO
             if self.nodes[i] == 0:
                 painter.drawImage(self.board_position[i], self.white, self.quelle_white)
             elif self.nodes[i] == 1:
                 painter.drawImage(self.board_position[i], self.black, self.quelle_black)
         if self.marked_node is not -1:
             painter.drawImage(self.board_position[self.marked_node], self.red, self.quelle_red)
+        if self.next_node is not -1:
+            painter.drawImage(self.board_position[self.next_node], self.next_color, self.next_quelle)
 
     def mousePressEvent(self, event):
         for i in range(24):
             if self.board_position[i].contains(event.pos()):
                 self.position_pressed.emit(i)
 
-    def set_nodes(self,nodes):
+    def set_nodes(self, nodes):
         self.nodes = nodes
         self.update()
 
     def set_marked_node(self, node):
         self.marked_node = node
+        self.update()
+
+    def set_next_node(self, node):
+        self.next_node = node
+        self.update()
+
+    def set_next_color(self, color):
+        if color == 0:
+            self.next_color = self.white
+            self.next_quelle = self.quelle_white
+        elif color == 1:
+            self.next_color = self.black
+            self.next_quelle = self.quelle_black
         self.update()
 
 if __name__ == "__main__":

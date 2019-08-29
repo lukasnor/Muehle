@@ -20,5 +20,5 @@ class Move:
         self.remove_pos = remove_pos
 
     def __str__(self):
-        string = "Color: " + self.color + ", From: " + self.from_pos + ", To: " + self.to_pos + ", Remove: " + self.remove_pos
+        string = "Color: " + str(self.color) + ", From: " + str(self.from_pos) + ", To: " + str(self.to_pos) + ", Remove: " + str(self.remove_pos)
         return string
